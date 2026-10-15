@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trekker - Perencana Pendakian</title>
+<style>
+:root{--bg:#f4f7f2;--fg:#1d2b22;--card:#fff;--ac:#2f7d4f;--mut:#5c6b62;--bd:#d5dfd7}
+@media(prefers-color-scheme:dark){:root{--bg:#141b16;--fg:#e8efe9;--card:#1e2822;--mut:#9db0a3;--bd:#33453a}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.55}
+section{max-width:960px;margin:0 auto;padding:56px 20px}
+.hero{min-height:80vh;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(160deg,#1f5a3a,#3f8f63);color:#fff;max-width:none;text-align:center;align-items:center}
+.hero h1{font-size:clamp(2rem,6vw,3.4rem);margin:0 0 12px}
+.hero p{max-width:540px;margin:0 0 24px;opacity:.92}
+.btn{display:inline-block;background:var(--ac);color:#fff;border:0;padding:12px 22px;border-radius:10px;font-size:1rem;cursor:pointer;text-decoration:none}
+.btn.light{background:#fff;color:#1f5a3a}
+.btn.outline{background:transparent;border:2px solid #fff}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+h2{margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:16px}
+label{display:block;font-weight:600;margin:12px 0 4px}
+select,input,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;font:inherit;background:var(--bg);color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.badge{display:inline-block;padding:3px 12px;border-radius:99px;font-weight:700;font-size:.85rem;color:#fff}
+.Easy{background:#2f9e5b}.Moderate{background:#d68910}.Hard{background:#c0392b}.VeryHard{background:#7b1e3a}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+ul{padding-left:20px;margin:6px 0}
+.mut{color:var(--mut);font-size:.9rem}
+.hidden{display:none}
+nav{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--bd);padding:10px 20px;display:flex;gap:18px;flex-wrap:wrap;z-index:5}
+nav a{color:var(--fg);text-decoration:none;font-weight:600}
+.rbtn{width:100%;text-align:left;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-top:8px;font:inherit;cursor:pointer}
+.rdet{border-left:3px solid var(--ac);padding:4px 12px;margin:6px 0}
+.rdet p{margin:4px 0}
+.slider{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:12px}
+.slide{flex:0 0 min(300px,80%);scroll-snap-align:start;margin:0}
+.ph{width:100%;height:170px;object-fit:cover;border-radius:10px;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.arrows{display:flex;gap:8px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<nav><a href="#top">PendakiPintar</a><a href="#planner">Perencana</a><a href="#ulasan">Ulasan</a><a href="#gunung">Jelajah Gunung</a><a href="#lainnya">Trail Maps</a></nav>
+
+<section class="hero" id="top">
+  <h1>Rencanakan Pendakianmu</h1>
+  <p>Pilih gunung, durasi, dan gaya pendakian. Dapatkan tingkat kesulitan, jalur, dan daftar peralatan dalam hitungan detik.</p>
+  <div class="row">
+    <a class="btn light" href="#planner">Mulai Merencanakan</a>
+    <a class="btn outline" href="#ulasan">Lihat Ulasan</a>
+  </div>
+</section>
+
+<section id="planner">
+  <h2>Perencana Pendakian</h2>
+  <div class="card">
+    <div class="grid">
+      <div><label for="mt">Tujuan Pendakian</label><select id="mt"></select></div>
+      <div><label for="dur">Durasi (hari)</label><input id="dur" type="number" min="1" max="10" value="2"></div>
+      <div><label for="mth">Metode</label>
+        <select id="mth">
+          <option value="tektok">Tektok (naik-turun 1 hari)</option>
+          <option value="camp" selected>Camp (menginap di gunung)</option>
+          <option value="trail">Trail / Traverse (naik & turun beda jalur)</option>
+        </select></div>
+      <div><label for="ppl">Jumlah Pendaki</label><input id="ppl" type="number" min="1" max="50" value="4"></div>
+    </div>
+    <p><button class="btn" id="go">Lihat Rekomendasi</button></p>
+  </div>
+
+  <div id="out" class="hidden">
+    <div class="card">
+      <h3 id="oTitle" style="margin-top:0"></h3>
+      <span id="oBadge" class="badge"></span>
+      <p id="oNote" class="mut"></p>
+    </div>
+    <div class="cols">
+      <div class="card"><h3 style="margin-top:0">Jalur Rekomendasi</h3><p class="mut">Klik jalur untuk melihat detail.</p><div id="oRoutes"></div></div>
+      <div class="card"><h3 style="margin-top:0">Peralatan Wajib</h3><ul id="oMust"></ul></div>
+      <div class="card"><h3 style="margin-top:0">Peralatan Rekomendasi</h3><ul id="oRec"></ul></div>
+    </div>
+    <p class="mut">Informasi bersifat panduan umum. Selalu cek aturan, kuota, dan kondisi jalur terbaru di pengelola gunung.</p>
+  </div>
+</section>
+
+<section id="ulasan">
+  <h2>Ulasan Pendaki</h2>
+  <div id="cfgWarn" class="card hidden">Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_KEY di data.js.</div>
+  <div class="card">
+    <h3 style="margin-top:0">Tulis Ulasan</h3>
+    <div class="grid">
+      <div><label for="rMt">Gunung</label><select id="rMt"></select></div>
+      <div><label for="rName">Nama</label><input id="rName" maxlength="50"></div>
+      <div><label for="rStar">Rating</label>
+        <select id="rStar"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div>
+    </div>
+    <label for="rTxt">Ulasan</label>
+    <textarea id="rTxt" rows="3" maxlength="500"></textarea>
+    <p><button class="btn" id="rSend">Kirim Ulasan</button> <span id="rMsg" class="mut"></span></p>
+  </div>
+  <div id="reviews"></div>
+</section>
+
+<section id="gunung">
+  <h2>Jelajah Gunung</h2>
+  <div class="arrows">
+    <button class="btn" id="prev" aria-label="Geser kiri">&larr;</button>
+    <button class="btn" id="next" aria-label="Geser kanan">&rarr;</button>
+  </div>
+  <div class="slider" id="slider"></div>
+  <p class="mut">Geser ke kiri untuk melihat gunung lainnya.</p>
+</section>
+
+<section id="lainnya">
+  <h2>Trail Maps</h2>
+  <div class="card">
+    <p>Lihat peta jalur pendakian dari berbagai gunung di situs Gunung Bagging.</p>
+    <a class="btn" href="https://www.gunungbagging.com/trail-maps/" target="_blank" rel="noopener">Buka Trail Maps</a>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
